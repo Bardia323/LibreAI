@@ -13,6 +13,13 @@ on:
   issues:
     types: [opened, edited, labeled]
 
+# Creating an issue *with* a label fires both `opened` and `labeled`; collapse
+# those (and rapid edits) to a single run per issue so we never open two PRs for
+# the same submission.
+concurrency:
+  group: submission-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
 permissions: {}   # default to zero; each job opts into the minimum it needs
 
 jobs:
@@ -71,7 +78,12 @@ jobs:
           path: incoming
 
       - name: Apply proposed change
-        run: cp incoming/data/models.json data/models.json
+        # upload-artifact@v4 strips the common parent dir, so the file may land
+        # at incoming/models.json rather than incoming/data/models.json — locate it.
+        run: |
+          src="$(find incoming -type f -name 'models.json' | head -1)"
+          test -n "$src" || { echo "artifact missing models.json"; exit 1; }
+          cp "$src" data/models.json
 
       - name: Open PR
         id: cpr
