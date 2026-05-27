@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "updated": "2025-05-26",
+  "updated": "2026-05-27",
   "models": [
     {
       "id": "llama-3.1-70b-instruct",
@@ -11,12 +11,20 @@
       "architecture": "transformer",
       "parameters": "70B",
       "context": 131072,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "llama3.1",
       "description": "Meta's Llama 3.1 70B instruction-tuned model with a 128K context window and strong multilingual capabilities across 8 languages.",
       "magnets": [],
       "huggingface": "https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct",
-      "tags": ["instruct", "multilingual", "chat", "128k"],
+      "tags": [
+        "instruct",
+        "multilingual",
+        "chat",
+        "128k"
+      ],
       "added": "2024-07-23"
     },
     {
@@ -28,7 +36,10 @@
       "architecture": "transformer",
       "parameters": "8B",
       "context": 131072,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "llama3.1",
       "description": "Meta's Llama 3.1 8B instruction-tuned model. Highly capable at its size class with a 128K context window.",
       "magnets": [
@@ -37,9 +48,15 @@
           "url": "magnet:?xt=urn:btih:a1b2c3d4e5f60718293a4b5c6d7e8f9012345678&dn=Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.com%3A1337%2Fannounce",
           "infohash": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
           "size": "4.9 GB",
-          "files": ["Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"],
+          "files": [
+            "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+          ],
           "verified": true,
-          "swarm": { "seeders": 34, "peers": 7, "checked": "2025-05-26T00:00:00Z" }
+          "swarm": {
+            "seeders": 34,
+            "peers": 7,
+            "checked": "2025-05-26T00:00:00Z"
+          }
         },
         {
           "label": "safetensors (FP16)",
@@ -55,11 +72,21 @@
             "tokenizer.json"
           ],
           "verified": true,
-          "swarm": { "seeders": 18, "peers": 3, "checked": "2025-05-26T00:00:00Z" }
+          "swarm": {
+            "seeders": 18,
+            "peers": 3,
+            "checked": "2025-05-26T00:00:00Z"
+          }
         }
       ],
       "huggingface": "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct",
-      "tags": ["instruct", "multilingual", "chat", "128k", "lightweight"],
+      "tags": [
+        "instruct",
+        "multilingual",
+        "chat",
+        "128k",
+        "lightweight"
+      ],
       "added": "2024-07-23"
     },
     {
@@ -71,7 +98,10 @@
       "architecture": "transformer",
       "parameters": "7B",
       "context": 32768,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "apache-2.0",
       "description": "Mistral 7B with instruction fine-tuning and function calling support. One of the best open 7B models.",
       "magnets": [
@@ -80,13 +110,23 @@
           "url": "magnet:?xt=urn:btih:c3d4e5f60718293a4b5c6d7e8f901234567890abc&dn=Mistral-7B-Instruct-v0.3-Q5_K_M.gguf&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce",
           "infohash": "c3d4e5f60718293a4b5c6d7e8f901234567890abc",
           "size": "5.1 GB",
-          "files": ["Mistral-7B-Instruct-v0.3-Q5_K_M.gguf"],
+          "files": [
+            "Mistral-7B-Instruct-v0.3-Q5_K_M.gguf"
+          ],
           "verified": true,
-          "swarm": { "seeders": 12, "peers": 2, "checked": "2025-05-26T00:00:00Z" }
+          "swarm": {
+            "seeders": 12,
+            "peers": 2,
+            "checked": "2025-05-26T00:00:00Z"
+          }
         }
       ],
       "huggingface": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
-      "tags": ["instruct", "function-calling", "fast"],
+      "tags": [
+        "instruct",
+        "function-calling",
+        "fast"
+      ],
       "added": "2024-05-22"
     },
     {
@@ -98,12 +138,20 @@
       "architecture": "moe",
       "parameters": "46.7B",
       "context": 32768,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "apache-2.0",
       "description": "Sparse mixture-of-experts model. Activates 12.9B parameters per token from 46.7B total. Strong reasoning and coding.",
       "magnets": [],
       "huggingface": "https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1",
-      "tags": ["instruct", "moe", "coding", "reasoning"],
+      "tags": [
+        "instruct",
+        "moe",
+        "coding",
+        "reasoning"
+      ],
       "added": "2023-12-11"
     },
     {
@@ -115,12 +163,21 @@
       "architecture": "transformer",
       "parameters": "72B",
       "context": 131072,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "qwen",
       "description": "Alibaba's Qwen 2.5 72B instruction model. Excellent coding, math, and multilingual performance. 128K context.",
       "magnets": [],
       "huggingface": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct",
-      "tags": ["instruct", "coding", "math", "multilingual", "128k"],
+      "tags": [
+        "instruct",
+        "coding",
+        "math",
+        "multilingual",
+        "128k"
+      ],
       "added": "2024-09-19"
     },
     {
@@ -132,12 +189,18 @@
       "architecture": "transformer",
       "parameters": "27B",
       "context": 8192,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "gemma",
       "description": "Google's Gemma 2 27B instruction-tuned model using alternating local and global attention. Strong performance at its size.",
       "magnets": [],
       "huggingface": "https://huggingface.co/google/gemma-2-27b-it",
-      "tags": ["instruct", "chat"],
+      "tags": [
+        "instruct",
+        "chat"
+      ],
       "added": "2024-06-27"
     },
     {
@@ -149,12 +212,20 @@
       "architecture": "transformer",
       "parameters": "14B",
       "context": 16384,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "mit",
       "description": "Microsoft's Phi-4 14B model trained on synthetic data. Punches well above its weight class on reasoning and STEM tasks.",
       "magnets": [],
       "huggingface": "https://huggingface.co/microsoft/phi-4",
-      "tags": ["reasoning", "stem", "coding", "math"],
+      "tags": [
+        "reasoning",
+        "stem",
+        "coding",
+        "math"
+      ],
       "added": "2024-12-12"
     },
     {
@@ -166,12 +237,20 @@
       "architecture": "moe",
       "parameters": "671B",
       "context": 131072,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "mit",
       "description": "DeepSeek's flagship reasoning model trained with reinforcement learning. 671B MoE architecture activating 37B parameters per token.",
       "magnets": [],
       "huggingface": "https://huggingface.co/deepseek-ai/DeepSeek-R1",
-      "tags": ["reasoning", "moe", "math", "coding", "chain-of-thought"],
+      "tags": [
+        "reasoning",
+        "moe",
+        "math",
+        "coding",
+        "chain-of-thought"
+      ],
       "added": "2025-01-20"
     },
     {
@@ -183,12 +262,18 @@
       "architecture": "dit",
       "parameters": "12B",
       "context": null,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "flux-1-dev",
       "description": "Black Forest Labs' 12B parameter rectified flow transformer for text-to-image. Best open image generation quality.",
       "magnets": [],
       "huggingface": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
-      "tags": ["text-to-image", "high-quality", "flow-matching"],
+      "tags": [
+        "text-to-image",
+        "high-quality",
+        "flow-matching"
+      ],
       "added": "2024-08-01"
     },
     {
@@ -200,12 +285,20 @@
       "architecture": "dit",
       "parameters": "12B",
       "context": null,
-      "formats": ["safetensors", "gguf"],
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
       "license": "apache-2.0",
       "description": "Distilled version of FLUX.1 for fast inference. 1-4 steps instead of 20-50. Fully open Apache 2.0 license.",
       "magnets": [],
       "huggingface": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
-      "tags": ["text-to-image", "fast", "distilled", "flow-matching"],
+      "tags": [
+        "text-to-image",
+        "fast",
+        "distilled",
+        "flow-matching"
+      ],
       "added": "2024-08-01"
     },
     {
@@ -217,12 +310,18 @@
       "architecture": "dit",
       "parameters": "8B",
       "context": null,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "stabilityai-community",
       "description": "Stability AI's SD 3.5 Large multimodal diffusion transformer. Improved text rendering and prompt adherence.",
       "magnets": [],
       "huggingface": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large",
-      "tags": ["text-to-image", "high-resolution", "text-rendering"],
+      "tags": [
+        "text-to-image",
+        "high-resolution",
+        "text-rendering"
+      ],
       "added": "2024-10-22"
     },
     {
@@ -234,12 +333,18 @@
       "architecture": "unet",
       "parameters": "3.5B",
       "context": null,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "openrail++",
       "description": "SDXL base model with 1024x1024 native resolution. Massive ecosystem of LoRAs and ControlNets.",
       "magnets": [],
       "huggingface": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
-      "tags": ["text-to-image", "high-resolution", "lora-compatible"],
+      "tags": [
+        "text-to-image",
+        "high-resolution",
+        "lora-compatible"
+      ],
       "added": "2023-07-26"
     },
     {
@@ -251,12 +356,17 @@
       "architecture": "dit",
       "parameters": "5B",
       "context": null,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "cogvideox",
       "description": "Open-source text-to-video DiT model with 3D full attention. Generates 6-second 720p videos.",
       "magnets": [],
       "huggingface": "https://huggingface.co/THUDM/CogVideoX-5b",
-      "tags": ["text-to-video", "video-generation"],
+      "tags": [
+        "text-to-video",
+        "video-generation"
+      ],
       "added": "2024-08-12"
     },
     {
@@ -268,12 +378,18 @@
       "architecture": "mamba",
       "parameters": "2.8B",
       "context": null,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "apache-2.0",
       "description": "Pure state-space model with selective scan. Linear-time inference, no attention. O(1) memory per token at generation.",
       "magnets": [],
       "huggingface": "https://huggingface.co/state-spaces/mamba-2.8b",
-      "tags": ["ssm", "linear-time", "efficient"],
+      "tags": [
+        "ssm",
+        "linear-time",
+        "efficient"
+      ],
       "added": "2023-12-01"
     },
     {
@@ -285,12 +401,19 @@
       "architecture": "rwkv",
       "parameters": "7B",
       "context": null,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "apache-2.0",
       "description": "RNN-based language model with transformer-level performance. Constant memory usage at any context length. Trained on 100+ languages.",
       "magnets": [],
       "huggingface": "https://huggingface.co/BlinkDL/rwkv-6-world",
-      "tags": ["rnn", "multilingual", "linear-time", "efficient"],
+      "tags": [
+        "rnn",
+        "multilingual",
+        "linear-time",
+        "efficient"
+      ],
       "added": "2024-02-08"
     },
     {
@@ -302,13 +425,45 @@
       "architecture": "hybrid",
       "parameters": "12B",
       "context": 262144,
-      "formats": ["safetensors"],
+      "formats": [
+        "safetensors"
+      ],
       "license": "apache-2.0",
       "description": "Hybrid Mamba-Transformer architecture. 256K context window with efficient memory usage. Combines attention and SSM layers.",
       "magnets": [],
       "huggingface": "https://huggingface.co/ai21labs/AI21-Jamba-1.5-Mini",
-      "tags": ["hybrid", "mamba", "256k", "efficient"],
+      "tags": [
+        "hybrid",
+        "mamba",
+        "256k",
+        "efficient"
+      ],
       "added": "2024-08-22"
+    },
+    {
+      "id": "llama-3.2-3b-instruct",
+      "name": "Llama 3.2 3B Instruct",
+      "creator": "Meta",
+      "category": "llm",
+      "variant": "instruct",
+      "architecture": "transformer",
+      "parameters": "3B",
+      "context": 131072,
+      "formats": [
+        "safetensors",
+        "gguf"
+      ],
+      "license": "llama3.2",
+      "description": "Meta's Llama 3.2 3B instruction-tuned model. Compact multilingual model with a 128K context window, designed for on-device and edge use.",
+      "magnets": [],
+      "huggingface": "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct",
+      "tags": [
+        "instruct",
+        "multilingual",
+        "128k",
+        "lightweight"
+      ],
+      "added": "2026-05-27"
     }
   ]
 }
