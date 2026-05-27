@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model — LibreAI</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">LibreAI</a>
+  <ul class="nav-links">
+    <li><a href="browse.html">Browse</a></li>
+    <li><a href="submit.html">Submit</a></li>
+    <li><a href="mirror.html">Mirror</a></li>
+    <li><a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<main id="model-content">
+  <div class="container">
+    <div class="model-header">
+      <div class="breadcrumb">
+        <a href="index.html">LibreAI</a>
+        <span>/</span>
+        <a href="browse.html">Browse</a>
+        <span>/</span>
+        <a href="#" id="crumb-cat"></a>
+        <span>/</span>
+        <span id="crumb-name"></span>
+      </div>
+      <h1 class="model-title" id="model-title">Loading…</h1>
+      <div class="model-creator" id="model-creator"></div>
+      <div class="tag-list" id="model-tags"></div>
+    </div>
+
+    <div class="model-body">
+      <div>
+        <table class="meta-table" id="meta-table"></table>
+        <div class="model-desc-heading">Description</div>
+        <p class="model-description" id="model-desc"></p>
+      </div>
+
+      <div class="download-box">
+        <div class="download-box-title">Get this model</div>
+        <ul class="magnet-list" id="magnet-list"></ul>
+        <a class="hf-btn" id="hf-link" href="#" target="_blank" rel="noopener" style="display:none">
+          HuggingFace ↗
+        </a>
+        <a class="add-magnet-link" id="add-magnet-link" href="#">+ Add a magnet to this model</a>
+      </div>
+    </div>
+
+    <div id="related-section" style="display:none">
+      <div class="section-header">
+        <span class="section-title">Related Models</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Creator</th><th>Category</th><th>Variant</th>
+              <th>Architecture</th><th>Params</th><th>Swarm</th><th>HF</th><th>Added</th>
+            </tr>
+          </thead>
+          <tbody id="related-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>LibreAI — open index, no gatekeepers</span>
+  <div class="footer-links">
+    <a href="mirror.html">Mirror this site</a>
+    <a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub</a>
+    <a href="submit.html">Submit a model</a>
+  </div>
+</footer>
+
+<script src="static/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const id = location.hash.slice(1);
+    if (!id) { location.href = 'browse.html'; return; }
+
+    const data = await loadModels();
+    const model = data.models.find(m => m.id === id);
+
+    if (!model) {
+      document.getElementById('model-title').textContent = 'Model not found';
+      document.getElementById('model-creator').textContent = 'This model does not exist in the index.';
+      return;
+    }
+
+    document.title = `${model.name} — LibreAI`;
+
+    // Breadcrumb
+    const crumbCat = document.getElementById('crumb-cat');
+    crumbCat.textContent = catLabel(model.category);
+    crumbCat.href = `browse.html?cat=${model.category}`;
+    document.getElementById('crumb-name').textContent = model.name;
+
+    // Header
+    document.getElementById('model-title').textContent   = model.name;
+    document.getElementById('model-creator').textContent = model.creator || '';
+    document.getElementById('model-tags').innerHTML = (model.tags || [])
+      .map(t => `<span class="tag">${esc(t)}</span>`).join('');
+
+    // Meta table
+    const ctx = model.context ? Number(model.context).toLocaleString() + ' tokens' : '—';
+    const fmts = (model.formats || []).map(f => `<span class="badge">${esc(f)}</span>`).join(' ') || '—';
+    const rows = [
+      ['Category',     `<span class="badge ${badgeClass(model.category)}">${esc(catLabel(model.category))}</span>`],
+      ['Variant',      `<span class="badge badge-variant">${esc(variantLabel(model.variant))}</span>`],
+      ['Architecture', esc(archLabel(model.architecture))],
+      ['Parameters',   esc(model.parameters) || '—'],
+      ['Context',      ctx],
+      ['Formats',      fmts],
+      ['License',      esc(model.license) || '—'],
+      ['Added',        formatDate(model.added)],
+    ];
+    document.getElementById('meta-table').innerHTML =
+      rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+    // Description
+    document.getElementById('model-desc').textContent =
+      model.description || 'No description available.';
+
+    // Magnets
+    const magnets = model.magnets || [];
+    if (magnets.length) {
+      document.getElementById('magnet-list').innerHTML = magnets.map(mg => {
+        const vbadge = mg.verified
+          ? '<span class="vbadge">verified</span>'
+          : '<span class="vbadge vbadge-pending">unverified</span>';
+        const seeders = Number(mg.swarm?.seeders) || 0;
+        const peers   = Number(mg.swarm?.peers) || 0;
+        const sw = mg.swarm && (mg.swarm.checked || seeders)
+          ? `<span class="swarm-mini ${seeders > 0 ? 'live' : ''}">${seeders}▲ ${peers}▼</span>`
+          : '<span class="swarm-mini">no swarm data</span>';
+        const files = (mg.files && mg.files.length)
+          ? `<details class="files"><summary>${mg.files.length} file${mg.files.length !== 1 ? 's' : ''}</summary><ul>${mg.files.map(f => `<li>${esc(f)}</li>`).join('')}</ul></details>`
+          : '';
+        const url = safeUrl(mg.url);
+        return `<li class="magnet-li">
+          <a class="magnet-item" href="${esc(url)}">
+            <span class="label">⚡ ${esc(mg.label)} ${vbadge}</span>
+            <span class="size">${esc(mg.size) || ''}</span>
+          </a>
+          <div class="magnet-meta">${sw}${files}</div>
+        </li>`;
+      }).join('');
+    } else {
+      document.getElementById('magnet-list').innerHTML =
+        `<div class="no-magnets">No magnets yet — add one below</div>`;
+    }
+
+    // HF link
+    if (model.huggingface) {
+      const hf = document.getElementById('hf-link');
+      hf.href = model.huggingface;
+      hf.style.display = 'flex';
+    }
+
+    // Add-magnet link — preselects this model on the submit page
+    document.getElementById('add-magnet-link').href = `submit.html?add=${encodeURIComponent(model.id)}`;
+
+    // Related
+    const related = data.models
+      .filter(m => m.id !== id && m.category === model.category)
+      .slice(0, 5);
+    if (related.length) {
+      document.getElementById('related-section').style.display = 'block';
+      document.getElementById('related-tbody').innerHTML = related.map(renderRow).join('');
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+name: Update swarm stats
+
+# Refreshes seeder / peer counts for every magnet on a schedule and commits the
+# numbers back into data/models.json. Seeder counts are live data, so this keeps
+# the static index reasonably current without a backend.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours
+  workflow_dispatch:          # allow manual runs
+
+permissions:
+  contents: write
+
+jobs:
+  swarm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scrape trackers
+        run: python scripts/update_swarm.py --timeout 8
+
+      - name: Commit updated counts
+        run: |
+          git config user.name  "libreai-bot"
+          git config user.email "bot@libreai.org"
+          if ! git diff --quiet data/models.json; then
+            git add data/models.json
+            git commit -m "swarm: refresh seeder/peer counts"
+            git push
+          else
+            echo "No changes."
+          fi

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse — LibreAI</title>
+  <meta name="description" content="Browse the LibreAI index of open AI models by category and architecture.">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">LibreAI</a>
+  <ul class="nav-links">
+    <li><a href="browse.html" class="active">Browse</a></li>
+    <li><a href="submit.html">Submit</a></li>
+    <li><a href="mirror.html">Mirror</a></li>
+    <li><a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+
+    <div class="filters">
+      <div class="filter-row">
+        <span class="filter-label">Category</span>
+        <div class="filter-pills">
+          <button class="pill active" data-cat="">All</button>
+          <button class="pill" data-cat="llm">LLMs</button>
+          <button class="pill" data-cat="diffusion">Diffusion</button>
+          <button class="pill" data-cat="misc">Misc</button>
+        </div>
+        <div class="filter-right">
+          <span class="result-count" id="result-count"></span>
+          <input type="text" id="filter-input" placeholder="Filter…" autocomplete="off">
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Variant</span>
+        <div class="filter-pills">
+          <button class="pill active" data-variant="">All</button>
+          <button class="pill" data-variant="base">Base</button>
+          <button class="pill" data-variant="instruct">Instruct</button>
+          <button class="pill" data-variant="rlhf">RLHF/RLAIF</button>
+          <button class="pill" data-variant="finetune">Fine-tuned</button>
+          <button class="pill" data-variant="lora">LoRA</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="name">Name</th>
+            <th data-sort="creator">Creator</th>
+            <th data-sort="category">Category</th>
+            <th data-sort="variant">Variant</th>
+            <th data-sort="architecture">Architecture</th>
+            <th data-sort="parameters">Params</th>
+            <th>Swarm</th>
+            <th>HF</th>
+            <th data-sort="added">Added</th>
+          </tr>
+        </thead>
+        <tbody id="browse-tbody">
+          <tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>LibreAI — open index, no gatekeepers</span>
+  <div class="footer-links">
+    <a href="mirror.html">Mirror this site</a>
+    <a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub</a>
+    <a href="submit.html">Submit a model</a>
+  </div>
+</footer>
+
+<script src="static/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const data = await loadModels();
+    const models = data.models;
+
+    let state = {
+      q:       getUrlParam('q'),
+      cat:     getUrlParam('cat'),
+      variant: getUrlParam('variant'),
+      sort:    getUrlParam('sort') || 'added',
+      dir:     getUrlParam('dir')  || 'desc',
+    };
+
+    document.getElementById('filter-input').value = state.q;
+
+    // Sync active pills to URL params
+    document.querySelectorAll('.pill[data-cat]').forEach(p => {
+      p.classList.toggle('active', p.dataset.cat === state.cat);
+    });
+    document.querySelectorAll('.pill[data-variant]').forEach(p => {
+      p.classList.toggle('active', p.dataset.variant === state.variant);
+    });
+
+    function render() {
+      const filtered = sortModels(filterModels(models, {
+        q: state.q, category: state.cat, variant: state.variant
+      }), state.sort, state.dir);
+      document.getElementById('result-count').textContent =
+        `${filtered.length} model${filtered.length !== 1 ? 's' : ''}`;
+      document.getElementById('browse-tbody').innerHTML = filtered.length
+        ? filtered.map(renderRow).join('')
+        : `<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:3rem">No models found</td></tr>`;
+
+      // Update sort indicators
+      document.querySelectorAll('thead th[data-sort]').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.sort === state.sort) th.classList.add(`sort-${state.dir}`);
+      });
+    }
+
+    // Category pills
+    document.querySelectorAll('.pill[data-cat]').forEach(p => {
+      p.addEventListener('click', () => {
+        state.cat = p.dataset.cat;
+        document.querySelectorAll('.pill[data-cat]').forEach(x =>
+          x.classList.toggle('active', x.dataset.cat === state.cat));
+        setUrlParam('cat', state.cat);
+        render();
+      });
+    });
+
+    // Variant pills
+    document.querySelectorAll('.pill[data-variant]').forEach(p => {
+      p.addEventListener('click', () => {
+        state.variant = p.dataset.variant;
+        document.querySelectorAll('.pill[data-variant]').forEach(x =>
+          x.classList.toggle('active', x.dataset.variant === state.variant));
+        setUrlParam('variant', state.variant);
+        render();
+      });
+    });
+
+    // Filter input
+    document.getElementById('filter-input').addEventListener('input', e => {
+      state.q = e.target.value;
+      setUrlParam('q', state.q);
+      render();
+    });
+
+    // Sortable headers
+    document.querySelectorAll('thead th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        if (state.sort === th.dataset.sort) {
+          state.dir = state.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          state.sort = th.dataset.sort;
+          state.dir  = 'desc';
+        }
+        setUrlParam('sort', state.sort);
+        setUrlParam('dir',  state.dir);
+        render();
+      });
+    });
+
+    render();
+  });
+</script>
+
+</body>
+</html>

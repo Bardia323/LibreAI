@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit — LibreAI</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">LibreAI</a>
+  <ul class="nav-links">
+    <li><a href="browse.html">Browse</a></li>
+    <li><a href="submit.html" class="active">Submit</a></li>
+    <li><a href="mirror.html">Mirror</a></li>
+    <li><a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Submit</h1>
+      <p class="page-subtitle">
+        Generate a submission and open a GitHub issue. Safe, verifiable submissions
+        (only <code>.safetensors</code> / <code>.gguf</code> / text files, magnet metadata
+        resolves clean, no duplicates) auto-merge. Anything else opens a review PR.
+      </p>
+    </div>
+
+    <div class="filter-row" style="margin-bottom:1.5rem">
+      <div class="filter-pills">
+        <button class="pill active" data-mode="model">New Model</button>
+        <button class="pill" data-mode="magnet">Add Magnet to Existing</button>
+      </div>
+    </div>
+
+    <!-- ── New model ── -->
+    <form class="submit-form" id="model-form" novalidate>
+      <div class="form-group">
+        <label for="f-name">Model Name *</label>
+        <input type="text" id="f-name" name="name" placeholder="e.g. Llama 3.1 70B Instruct" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-creator">Creator</label>
+          <input type="text" id="f-creator" name="creator" placeholder="e.g. Meta">
+        </div>
+        <div class="form-group">
+          <label for="f-params">Parameters</label>
+          <input type="text" id="f-params" name="parameters" placeholder="e.g. 70B">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-cat">Category *</label>
+          <select id="f-cat" name="category" required>
+            <option value="">Select…</option>
+            <option value="llm">LLM</option>
+            <option value="diffusion">Diffusion</option>
+            <option value="misc">Misc</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-variant">Variant *</label>
+          <select id="f-variant" name="variant" required>
+            <option value="base">Base</option>
+            <option value="instruct">Instruct</option>
+            <option value="rlhf">RLHF/RLAIF</option>
+            <option value="finetune">Fine-tuned</option>
+            <option value="lora">LoRA</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-arch">Architecture *</label>
+          <select id="f-arch" name="architecture" required>
+            <option value="">Select…</option>
+            <option value="transformer">Transformer</option>
+            <option value="dit">DiT</option>
+            <option value="moe">MoE</option>
+            <option value="unet">UNet</option>
+            <option value="flow-matching">Flow Matching</option>
+            <option value="mamba">Mamba</option>
+            <option value="rwkv">RWKV</option>
+            <option value="hybrid">Hybrid</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-context">Context (tokens)</label>
+          <input type="number" id="f-context" name="context" placeholder="e.g. 131072">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-license">License</label>
+          <input type="text" id="f-license" name="license" placeholder="e.g. apache-2.0, mit">
+        </div>
+        <div class="form-group">
+          <label for="f-formats">Formats</label>
+          <input type="text" id="f-formats" name="formats" placeholder="safetensors, gguf">
+          <div class="form-hint">Comma-separated</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="f-hf">HuggingFace URL</label>
+        <input type="url" id="f-hf" name="huggingface" placeholder="https://huggingface.co/…">
+      </div>
+
+      <div class="form-group">
+        <label for="f-magnet">Magnet Link</label>
+        <input type="text" id="f-magnet" name="magnet" placeholder="magnet:?xt=urn:btih:…">
+        <div class="form-hint">Optional. Add more magnets after generating, or via "Add Magnet" later.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="f-tags">Tags</label>
+        <input type="text" id="f-tags" name="tags" placeholder="instruct, multilingual, chat">
+        <div class="form-hint">Comma-separated</div>
+      </div>
+
+      <div class="form-group">
+        <label for="f-desc">Description</label>
+        <textarea id="f-desc" name="description" placeholder="Brief description of the model…"></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary">Generate Submission</button>
+    </form>
+
+    <!-- ── Add magnet ── -->
+    <form class="submit-form" id="magnet-form" novalidate style="display:none">
+      <div class="form-group">
+        <label for="m-target">Existing Model *</label>
+        <input type="text" id="m-target" list="model-list" placeholder="Start typing a model name…" autocomplete="off" required>
+        <datalist id="model-list"></datalist>
+        <div class="form-hint" id="m-target-hint"></div>
+      </div>
+      <div class="form-group">
+        <label for="m-label">Label</label>
+        <input type="text" id="m-label" placeholder="e.g. Q4_K_M (GGUF)">
+      </div>
+      <div class="form-group">
+        <label for="m-magnet">Magnet Link *</label>
+        <input type="text" id="m-magnet" placeholder="magnet:?xt=urn:btih:…" required>
+        <div class="form-hint">Metadata is fetched and checked in CI before auto-merge.</div>
+      </div>
+      <button type="submit" class="btn-primary">Generate Submission</button>
+    </form>
+
+    <!-- ── Shared output ── -->
+    <div class="output-wrap" id="output-wrap">
+      <div class="output-header">
+        <span>Submission JSON</span>
+        <button type="button" class="copy-btn" id="copy-btn">Copy</button>
+      </div>
+      <pre class="output-code" id="output-code"></pre>
+    </div>
+
+    <div id="submit-actions" style="display:none;margin-top:1.5rem;padding-bottom:4rem">
+      <a class="btn-primary" id="gh-issue-btn" href="#" target="_blank" rel="noopener">Open GitHub Issue →</a>
+      <p class="submit-note">
+        The button opens a pre-filled, labelled issue. Submitting it triggers the
+        validation bot. Or paste the JSON above into a new
+        <a href="https://github.com/Bardia323/LibreAI/issues/new?labels=submission" target="_blank" rel="noopener">submission issue</a>
+        manually.
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>LibreAI — open index, no gatekeepers</span>
+  <div class="footer-links">
+    <a href="mirror.html">Mirror this site</a>
+    <a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub</a>
+    <a href="browse.html">Browse all</a>
+  </div>
+</footer>
+
+<script src="static/app.js"></script>
+<script>
+  const REPO = 'Bardia323/LibreAI';
+  let MODELS = [];
+
+  function showOutput(payload, title) {
+    const json = JSON.stringify(payload, null, 2);
+    document.getElementById('output-code').textContent = json;
+    document.getElementById('output-wrap').style.display = 'block';
+    document.getElementById('submit-actions').style.display = 'block';
+
+    const body = '```json\n' + json + '\n```';
+    const url = `https://github.com/${REPO}/issues/new?labels=submission`
+      + `&title=${encodeURIComponent('[submission] ' + title)}`
+      + `&body=${encodeURIComponent(body)}`;
+    document.getElementById('gh-issue-btn').href = url;
+    document.getElementById('output-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Mode toggle
+  document.querySelectorAll('.pill[data-mode]').forEach(p => {
+    p.addEventListener('click', () => {
+      const mode = p.dataset.mode;
+      document.querySelectorAll('.pill[data-mode]').forEach(x =>
+        x.classList.toggle('active', x === p));
+      document.getElementById('model-form').style.display  = mode === 'model'  ? 'block' : 'none';
+      document.getElementById('magnet-form').style.display = mode === 'magnet' ? 'block' : 'none';
+      document.getElementById('output-wrap').style.display = 'none';
+      document.getElementById('submit-actions').style.display = 'none';
+    });
+  });
+
+  // ── New model submission ──
+  document.getElementById('model-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const name = (fd.get('name') || '').trim();
+    if (!name || !fd.get('category') || !fd.get('architecture')) {
+      alert('Name, category, and architecture are required.');
+      return;
+    }
+    const model = {
+      type:         'model',
+      name,
+      creator:      fd.get('creator') || null,
+      category:     fd.get('category'),
+      variant:      fd.get('variant') || 'base',
+      architecture: fd.get('architecture'),
+      parameters:   fd.get('parameters') || null,
+      context:      fd.get('context') ? parseInt(fd.get('context')) : null,
+      formats:      (fd.get('formats') || '').split(',').map(s => s.trim()).filter(Boolean),
+      license:      fd.get('license') || null,
+      description:  fd.get('description') || '',
+      magnets:      fd.get('magnet') ? [{ label: 'Download', url: fd.get('magnet').trim() }] : [],
+      huggingface:  fd.get('huggingface') || null,
+      tags:         (fd.get('tags') || '').split(',').map(s => s.trim()).filter(Boolean),
+    };
+    Object.keys(model).forEach(k => { if (model[k] === null) delete model[k]; });
+    showOutput(model, name);
+  });
+
+  // ── Add-magnet submission ──
+  document.getElementById('magnet-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const targetName = document.getElementById('m-target').value.trim();
+    const magnet = document.getElementById('m-magnet').value.trim();
+    if (!targetName || !magnet) { alert('Model and magnet link are required.'); return; }
+
+    const match = MODELS.find(m => m.name === targetName || m.id === targetName);
+    if (!match) { alert('Pick an existing model from the list.'); return; }
+
+    const payload = {
+      type: 'magnet',
+      target: match.id,
+      magnet: {
+        label: document.getElementById('m-label').value.trim() || 'Download',
+        url: magnet,
+      },
+    };
+    showOutput(payload, `magnet for ${match.id}`);
+  });
+
+  // Copy
+  document.getElementById('copy-btn').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('output-code').textContent).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+    });
+  });
+
+  // Populate model list + handle ?add=<id>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const data = await loadModels();
+    MODELS = data.models;
+    document.getElementById('model-list').innerHTML =
+      MODELS.map(m => `<option value="${esc(m.name)}">${esc(m.id)}</option>`).join('');
+
+    const addId = getUrlParam('add');
+    if (addId) {
+      const m = MODELS.find(x => x.id === addId);
+      if (m) {
+        document.querySelector('.pill[data-mode="magnet"]').click();
+        document.getElementById('m-target').value = m.name;
+        document.getElementById('m-target-hint').textContent = `Adding to: ${m.id}`;
+      }
+    }
+  });
+
+  document.getElementById('m-target').addEventListener('input', e => {
+    const m = MODELS.find(x => x.name === e.target.value || x.id === e.target.value);
+    document.getElementById('m-target-hint').textContent = m ? `Adding to: ${m.id}` : '';
+  });
+</script>
+
+</body>
+</html>

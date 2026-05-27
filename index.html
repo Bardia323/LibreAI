@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LibreAI — Free AI Model Index</title>
+  <meta name="description" content="A free, open, censorship-resistant index of AI models. No gatekeepers.">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">LibreAI</a>
+  <ul class="nav-links">
+    <li><a href="browse.html">Browse</a></li>
+    <li><a href="submit.html">Submit</a></li>
+    <li><a href="mirror.html">Mirror</a></li>
+    <li><a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+
+    <div class="hero">
+      <h1>LibreAI</h1>
+      <p>A free, open index of AI models. No gatekeepers. No takedowns.</p>
+      <div class="search-wrap">
+        <input type="text" id="search-input" placeholder="Search models, architectures, creators…" autocomplete="off">
+        <button id="search-btn">Search</button>
+      </div>
+    </div>
+
+    <div class="category-grid">
+      <a class="cat-card" href="browse.html?cat=llm">
+        <div class="cat-card-label">Category</div>
+        <div class="cat-card-title">LLMs</div>
+        <div class="cat-card-desc">Transformers, DiTs, MoEs, and instruction-tuned language models</div>
+        <div class="cat-card-count" id="count-llm">—</div>
+      </a>
+      <a class="cat-card" href="browse.html?cat=diffusion">
+        <div class="cat-card-label">Category</div>
+        <div class="cat-card-title">Diffusion</div>
+        <div class="cat-card-desc">Image, video, and audio generation — UNet, DiT, flow-matching</div>
+        <div class="cat-card-count" id="count-diffusion">—</div>
+      </a>
+      <a class="cat-card" href="browse.html?cat=misc">
+        <div class="cat-card-label">Category</div>
+        <div class="cat-card-title">Misc</div>
+        <div class="cat-card-desc">Mamba, RWKV, hybrids, and everything outside the mainstream</div>
+        <div class="cat-card-count" id="count-misc">—</div>
+      </a>
+    </div>
+
+    <div class="section-header">
+      <span class="section-title">Recently Added</span>
+      <a class="section-link" href="browse.html">View all →</a>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Creator</th>
+            <th>Category</th>
+            <th>Variant</th>
+            <th>Architecture</th>
+            <th>Params</th>
+            <th>Swarm</th>
+            <th>HF</th>
+            <th>Added</th>
+          </tr>
+        </thead>
+        <tbody id="recent-tbody">
+          <tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>LibreAI — open index, no gatekeepers</span>
+  <div class="footer-links">
+    <a href="mirror.html">Mirror this site</a>
+    <a href="https://github.com/Bardia323/LibreAI" target="_blank" rel="noopener">GitHub</a>
+    <a href="browse.html">Browse all</a>
+  </div>
+</footer>
+
+<script src="static/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const data = await loadModels();
+    const models = data.models;
+
+    // Category counts
+    const counts = { llm: 0, diffusion: 0, misc: 0 };
+    models.forEach(m => { if (m.category in counts) counts[m.category]++; });
+    document.getElementById('count-llm').textContent       = counts.llm;
+    document.getElementById('count-diffusion').textContent = counts.diffusion;
+    document.getElementById('count-misc').textContent      = counts.misc;
+
+    // Recent additions
+    const recent = sortModels(models, 'added', 'desc').slice(0, 10);
+    document.getElementById('recent-tbody').innerHTML = recent.map(renderRow).join('');
+
+    // Search
+    const input = document.getElementById('search-input');
+    const go = () => {
+      const q = input.value.trim();
+      location.href = q ? `browse.html?q=${encodeURIComponent(q)}` : 'browse.html';
+    };
+    document.getElementById('search-btn').addEventListener('click', go);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  });
+</script>
+
+</body>
+</html>
