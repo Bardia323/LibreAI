@@ -1,0 +1,129 @@
+name: IPFS failover (ceiling-gated)
+
+# Dormant by default. A cheap `gate` job runs whenever data/ changes and only
+# flips on when data/models.json crosses THRESHOLD_BYTES — a margin below git's
+# 100 MB per-file wall. At that point distribution must move off git, so the
+# `publish` job pins the whole (still relative-pathed, gateway-portable) site to
+# a remote IPFS pinning service and records the CID.
+#
+# Below the threshold: nothing happens. No IPFS activity, no commits, no cost.
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/**"]
+  workflow_dispatch:        # manual: force a check / first publish
+
+permissions: {}
+
+env:
+  THRESHOLD_BYTES: "80000000"   # 80 MB ~ 90k models; git hard-fails files >100 MB
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      over: ${{ steps.check.outputs.over }}
+      models: ${{ steps.check.outputs.models }}
+      data_bytes: ${{ steps.check.outputs.data_bytes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: check
+        run: python scripts/check_ceiling.py --threshold "$THRESHOLD_BYTES"
+
+  publish:
+    needs: gate
+    if: needs.gate.outputs.over == 'true'   # <-- the "if and only if"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    env:
+      IPFS_PIN_URL: ${{ secrets.IPFS_PIN_URL }}   # standard Pinning-Service API endpoint
+      IPFS_PIN_KEY: ${{ secrets.IPFS_PIN_KEY }}   # its bearer token
+    steps:
+      - uses: actions/checkout@v4
+
+      # If we've crossed the line but no pinning service is set up, alert loudly
+      # — git is about to start rejecting pushes and there's no failover yet.
+      - name: Require pinning config
+        if: env.IPFS_PIN_URL == '' || env.IPFS_PIN_KEY == ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: "⚠️ Index crossed the IPFS threshold — configure pinning now",
+              labels: ["needs-review"],
+              body: [
+                "`data/models.json` has reached the IPFS activation threshold (~80 MB),",
+                "approaching git's 100 MB per-file limit.",
+                "",
+                "Set two repo secrets so the failover can publish:",
+                "- `IPFS_PIN_URL` — a [Pinning Service API](https://ipfs.github.io/pinning-services-api-spec/) endpoint (Pinata, Filebase, etc.)",
+                "- `IPFS_PIN_KEY` — its bearer token",
+                "",
+                "Until then distribution stays on git/Pages and will break once the file exceeds 100 MB.",
+              ].join("\n"),
+            });
+            core.setFailed("Threshold crossed but IPFS_PIN_URL / IPFS_PIN_KEY are not configured.");
+
+      - name: Install kubo (IPFS)
+        run: |
+          ver=v0.29.0
+          wget -q "https://dist.ipfs.tech/kubo/${ver}/kubo_${ver}_linux-amd64.tar.gz"
+          tar xzf kubo_*.tar.gz
+          sudo bash kubo/install.sh
+          ipfs --version
+
+      - name: Start daemon
+        run: |
+          ipfs init >/dev/null 2>&1
+          ipfs daemon --enable-gc=false >/tmp/ipfs.log 2>&1 &
+          # wait until the API answers (needed so the pinning service can fetch
+          # the freshly-added blocks from this node over bitswap)
+          for i in $(seq 1 30); do ipfs id >/dev/null 2>&1 && break; sleep 1; done
+          ipfs id >/dev/null
+
+      - name: Add site to IPFS
+        id: add
+        run: |
+          CID=$(ipfs add -rQ --cid-version 1 --ignore=.git .)
+          echo "cid=$CID" >> "$GITHUB_OUTPUT"
+          echo "Site CID: $CID"
+
+      - name: Pin to remote service
+        run: |
+          ipfs pin remote service add libreai "$IPFS_PIN_URL" "$IPFS_PIN_KEY"
+          # blocks until the service reports "pinned" (it fetches from this node)
+          ipfs pin remote add --service=libreai \
+            --name="libreai-${GITHUB_SHA::8}" \
+            --background=false "${{ steps.add.outputs.cid }}"
+
+      - name: Record CID
+        run: |
+          python scripts/write_ipfs_cid.py \
+            --cid "${{ steps.add.outputs.cid }}" \
+            --models "${{ needs.gate.outputs.models }}" \
+            --bytes "${{ needs.gate.outputs.data_bytes }}"
+          git config user.name  "libreai-bot"
+          git config user.email "bot@libreai.org"
+          git add data/ipfs.json
+          git commit -m "ipfs: publish ${{ steps.add.outputs.cid }}" || echo "no change"
+          git push
+
+      - name: Summary
+        run: |
+          {
+            echo "### 🛰️ Published to IPFS"
+            echo "- CID: \`${{ steps.add.outputs.cid }}\`"
+            echo "- Gateway: https://${{ steps.add.outputs.cid }}.ipfs.dweb.link"
+            echo "- Models: ${{ needs.gate.outputs.models }}"
+            echo ""
+            echo "Point DNSLink at \`/ipfs/${{ steps.add.outputs.cid }}\` for a stable name."
+          } >> "$GITHUB_STEP_SUMMARY"
