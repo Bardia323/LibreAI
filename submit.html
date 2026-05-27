@@ -22,11 +22,34 @@
   <div class="container">
     <div class="page-header">
       <h1 class="page-title">Submit</h1>
-      <p class="page-subtitle">
-        Generate a submission and open a GitHub issue. Safe, verifiable submissions
-        (only <code>.safetensors</code> / <code>.gguf</code> / text files, magnet metadata
-        resolves clean, no duplicates) auto-merge. Anything else opens a review PR.
-      </p>
+      <p class="page-subtitle">Add a model — or a magnet for one already listed — to the index.</p>
+    </div>
+
+    <div class="howto">
+      <ol class="howto-steps">
+        <li><strong>Fill the form</strong> below. Choose <strong>New Model</strong> for something
+            not yet indexed, or <strong>Add Magnet to Existing</strong> to attach a download to a listed model.</li>
+        <li>Click <strong>Generate Submission</strong> — it builds the JSON and a
+            <strong>Open GitHub Issue</strong> button (pre-filled and labelled). Submit that issue.
+            All you need is a free GitHub account.</li>
+        <li>A bot checks it and routes it automatically — you'll get a comment with the result.</li>
+      </ol>
+      <div class="howto-rules">
+        <div class="howto-rule">
+          <span class="howto-tag ok">Auto-merge</span>
+          <span>The magnet resolves to only <code>.safetensors</code> / <code>.gguf</code> / text files,
+          and nothing duplicates an existing entry.</span>
+        </div>
+        <div class="howto-rule">
+          <span class="howto-tag review">Review</span>
+          <span>The magnet can't be verified (no seeders yet) or contains other file types —
+          a maintainer reviews the PR.</span>
+        </div>
+        <div class="howto-rule">
+          <span class="howto-tag reject">Rejected</span>
+          <span>The HuggingFace URL or the magnet's infohash already exists in the index.</span>
+        </div>
+      </div>
     </div>
 
     <div class="filter-row" style="margin-bottom:1.5rem">

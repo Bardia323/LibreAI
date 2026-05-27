@@ -633,6 +633,60 @@ tbody tr:last-child td { border-bottom: none; }
 
 .page-subtitle { font-size: 14px; color: var(--gray-500); }
 
+/* ── Submit how-to ── */
+
+.howto {
+  max-width: 640px;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  background: var(--gray-50);
+}
+
+.howto-steps {
+  margin: 0 0 1rem;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.howto-steps li { font-size: 13px; color: var(--gray-700); line-height: 1.5; }
+.howto-steps strong { color: var(--black); font-weight: 600; }
+
+.howto-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.howto-rule {
+  display: flex;
+  gap: 0.65rem;
+  align-items: baseline;
+  font-size: 12.5px;
+  color: var(--gray-600);
+  line-height: 1.45;
+}
+
+.howto-tag {
+  flex-shrink: 0;
+  width: 82px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.howto-tag.ok     { background: #f0fdf4; color: #15803d; }
+.howto-tag.review { background: #fef9c3; color: #a16207; }
+.howto-tag.reject { background: #fee2e2; color: #b91c1c; }
+
 .submit-form { max-width: 640px; padding-bottom: 4rem; }
 
 .form-group { margin-bottom: 1.25rem; }
