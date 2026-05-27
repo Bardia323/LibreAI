@@ -1,0 +1,30 @@
+{
+  "built": "2026-05-27T05:47:17Z", 
+  "total": 17, 
+  "page_size": 50, 
+  "categories": {
+    "all": 17, 
+    "llm": 9, 
+    "diffusion": 5, 
+    "misc": 3
+  }, 
+  "variants": {
+    "instruct": 9, 
+    "rlhf": 1, 
+    "base": 7
+  }, 
+  "record_buckets": [
+    "co", 
+    "de", 
+    "fl", 
+    "ge", 
+    "ja", 
+    "ll", 
+    "ma", 
+    "mi", 
+    "ph", 
+    "qw", 
+    "rw", 
+    "st"
+  ]
+}

@@ -70,6 +70,12 @@
       </table>
     </div>
 
+    <div class="pager" id="pager" style="display:none">
+      <button id="prev-btn">‹ Prev</button>
+      <span class="page-info" id="page-info"></span>
+      <button id="next-btn">Next ›</button>
+    </div>
+
   </div>
 </main>
 
@@ -85,8 +91,8 @@
 <script src="static/app.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
-    const data = await loadModels();
-    const models = data.models;
+    const [meta, models] = await Promise.all([loadMeta(), loadSlim()]);
+    const PAGE = meta.page_size || 50;
 
     let state = {
       q:       getUrlParam('q'),
@@ -94,65 +100,72 @@
       variant: getUrlParam('variant'),
       sort:    getUrlParam('sort') || 'added',
       dir:     getUrlParam('dir')  || 'desc',
+      page:    Math.max(0, (parseInt(getUrlParam('page')) || 1) - 1),
     };
 
     document.getElementById('filter-input').value = state.q;
-
-    // Sync active pills to URL params
-    document.querySelectorAll('.pill[data-cat]').forEach(p => {
-      p.classList.toggle('active', p.dataset.cat === state.cat);
-    });
-    document.querySelectorAll('.pill[data-variant]').forEach(p => {
-      p.classList.toggle('active', p.dataset.variant === state.variant);
-    });
+    document.querySelectorAll('.pill[data-cat]').forEach(p =>
+      p.classList.toggle('active', p.dataset.cat === state.cat));
+    document.querySelectorAll('.pill[data-variant]').forEach(p =>
+      p.classList.toggle('active', p.dataset.variant === state.variant));
 
     function render() {
-      const filtered = sortModels(filterModels(models, {
+      const all = sortModels(filterModels(models, {
         q: state.q, category: state.cat, variant: state.variant
       }), state.sort, state.dir);
+
+      const pages = Math.max(1, Math.ceil(all.length / PAGE));
+      if (state.page > pages - 1) state.page = pages - 1;
+      const slice = all.slice(state.page * PAGE, state.page * PAGE + PAGE);
+
       document.getElementById('result-count').textContent =
-        `${filtered.length} model${filtered.length !== 1 ? 's' : ''}`;
-      document.getElementById('browse-tbody').innerHTML = filtered.length
-        ? filtered.map(renderRow).join('')
+        `${all.length} model${all.length !== 1 ? 's' : ''}`;
+      document.getElementById('browse-tbody').innerHTML = slice.length
+        ? slice.map(renderRow).join('')
         : `<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:3rem">No models found</td></tr>`;
 
-      // Update sort indicators
+      // Pager
+      const pager = document.getElementById('pager');
+      pager.style.display = all.length > PAGE ? 'flex' : 'none';
+      document.getElementById('page-info').textContent = `Page ${state.page + 1} of ${pages}`;
+      document.getElementById('prev-btn').disabled = state.page <= 0;
+      document.getElementById('next-btn').disabled = state.page >= pages - 1;
+
+      // Sort indicators
       document.querySelectorAll('thead th[data-sort]').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sort === state.sort) th.classList.add(`sort-${state.dir}`);
       });
     }
 
-    // Category pills
+    function resetPageAndRender() { state.page = 0; setUrlParam('page', ''); render(); }
+
     document.querySelectorAll('.pill[data-cat]').forEach(p => {
       p.addEventListener('click', () => {
         state.cat = p.dataset.cat;
         document.querySelectorAll('.pill[data-cat]').forEach(x =>
           x.classList.toggle('active', x.dataset.cat === state.cat));
         setUrlParam('cat', state.cat);
-        render();
+        resetPageAndRender();
       });
     });
 
-    // Variant pills
     document.querySelectorAll('.pill[data-variant]').forEach(p => {
       p.addEventListener('click', () => {
         state.variant = p.dataset.variant;
         document.querySelectorAll('.pill[data-variant]').forEach(x =>
           x.classList.toggle('active', x.dataset.variant === state.variant));
         setUrlParam('variant', state.variant);
-        render();
+        resetPageAndRender();
       });
     });
 
-    // Filter input
     document.getElementById('filter-input').addEventListener('input', e => {
       state.q = e.target.value;
       setUrlParam('q', state.q);
-      render();
+      resetPageAndRender();
     });
 
-    // Sortable headers
     document.querySelectorAll('thead th[data-sort]').forEach(th => {
       th.addEventListener('click', () => {
         if (state.sort === th.dataset.sort) {
@@ -163,8 +176,15 @@
         }
         setUrlParam('sort', state.sort);
         setUrlParam('dir',  state.dir);
-        render();
+        resetPageAndRender();
       });
+    });
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      if (state.page > 0) { state.page--; setUrlParam('page', state.page + 1); render(); window.scrollTo(0, 0); }
+    });
+    document.getElementById('next-btn').addEventListener('click', () => {
+      state.page++; setUrlParam('page', state.page + 1); render(); window.scrollTo(0, 0);
     });
 
     render();

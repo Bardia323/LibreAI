@@ -25,12 +25,15 @@ jobs:
       - name: Scrape trackers
         run: python scripts/update_swarm.py --timeout 8
 
+      - name: Rebuild static index
+        run: python scripts/build_index.py
+
       - name: Commit updated counts
         run: |
           git config user.name  "libreai-bot"
           git config user.email "bot@libreai.org"
-          if ! git diff --quiet data/models.json; then
-            git add data/models.json
+          if ! git diff --quiet data/; then
+            git add data/models.json data/index
             git commit -m "swarm: refresh seeder/peer counts"
             git push
           else

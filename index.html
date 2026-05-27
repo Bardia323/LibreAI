@@ -93,19 +93,17 @@
 <script src="static/app.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
-    const data = await loadModels();
-    const models = data.models;
+    const [meta, models] = await Promise.all([loadMeta(), loadSlim()]);
 
-    // Category counts
-    const counts = { llm: 0, diffusion: 0, misc: 0 };
-    models.forEach(m => { if (m.category in counts) counts[m.category]++; });
-    document.getElementById('count-llm').textContent       = counts.llm;
-    document.getElementById('count-diffusion').textContent = counts.diffusion;
-    document.getElementById('count-misc').textContent      = counts.misc;
+    // Category counts (from prebuilt meta)
+    const c = meta.categories || {};
+    document.getElementById('count-llm').textContent       = c.llm || 0;
+    document.getElementById('count-diffusion').textContent = c.diffusion || 0;
+    document.getElementById('count-misc').textContent      = c.misc || 0;
 
-    // Recent additions
-    const recent = sortModels(models, 'added', 'desc').slice(0, 10);
-    document.getElementById('recent-tbody').innerHTML = recent.map(renderRow).join('');
+    // Recent additions — slim is already sorted newest-first
+    document.getElementById('recent-tbody').innerHTML =
+      models.slice(0, 10).map(renderRow).join('');
 
     // Search
     const input = document.getElementById('search-input');

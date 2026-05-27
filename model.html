@@ -83,11 +83,10 @@
 <script src="static/app.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
-    const id = location.hash.slice(1);
+    const id = decodeURIComponent(location.hash.slice(1));
     if (!id) { location.href = 'browse.html'; return; }
 
-    const data = await loadModels();
-    const model = data.models.find(m => m.id === id);
+    const model = await loadRecord(id);
 
     if (!model) {
       document.getElementById('model-title').textContent = 'Model not found';
@@ -168,8 +167,9 @@
     // Add-magnet link — preselects this model on the submit page
     document.getElementById('add-magnet-link').href = `submit.html?add=${encodeURIComponent(model.id)}`;
 
-    // Related
-    const related = data.models
+    // Related — from the slim index (same category)
+    const slim = await loadSlim();
+    const related = slim
       .filter(m => m.id !== id && m.category === model.category)
       .slice(0, 5);
     if (related.length) {

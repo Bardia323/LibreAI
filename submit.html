@@ -279,8 +279,7 @@
 
   // Populate model list + handle ?add=<id>
   document.addEventListener('DOMContentLoaded', async () => {
-    const data = await loadModels();
-    MODELS = data.models;
+    MODELS = await loadSlim();
     document.getElementById('model-list').innerHTML =
       MODELS.map(m => `<option value="${esc(m.name)}">${esc(m.id)}</option>`).join('');
 

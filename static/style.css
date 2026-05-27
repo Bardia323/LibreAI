@@ -317,6 +317,34 @@ tbody tr:last-child td { border-bottom: none; }
 
 .icon-link:hover { background: var(--gray-100); color: var(--black); }
 
+/* ── Pager ───────────────────────────────────────── */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem 0 3rem;
+  font-size: 13px;
+}
+
+.pager button {
+  padding: 6px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--gray-700);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.pager button:hover:not(:disabled) { border-color: var(--gray-400); color: var(--black); }
+.pager button:disabled { opacity: 0.4; cursor: default; }
+
+.pager .page-info { color: var(--gray-500); min-width: 110px; text-align: center; }
+
 /* ── Browse filters ──────────────────────────────── */
 
 .filters {

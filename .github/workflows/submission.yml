@@ -85,6 +85,13 @@ jobs:
           test -n "$src" || { echo "artifact missing models.json"; exit 1; }
           cp "$src" data/models.json
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild static index
+        run: python scripts/build_index.py
+
       - name: Open PR
         id: cpr
         uses: peter-evans/create-pull-request@v6
@@ -95,7 +102,9 @@ jobs:
             Submitted via #${{ github.event.issue.number }}.
             Decision: **${{ needs.parse.outputs.decision }}**.
           labels: ${{ needs.parse.outputs.decision == 'auto_merge' && 'submission' || 'needs-review' }}
-          add-paths: data/models.json
+          add-paths: |
+            data/models.json
+            data/index/**
 
       - name: Enable auto-merge (verified submissions only)
         if: needs.parse.outputs.decision == 'auto_merge' && steps.cpr.outputs.pull-request-number
