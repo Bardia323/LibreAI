@@ -54,8 +54,8 @@
           "verified": true,
           "swarm": {
             "seeders": 0,
-            "peers": 3,
-            "checked": "2026-10-02T21:43:08Z"
+            "peers": 2,
+            "checked": "2026-10-03T03:25:40Z"
           }
         },
         {
@@ -75,7 +75,7 @@
           "swarm": {
             "seeders": 18,
             "peers": 3,
-            "checked": "2026-10-02T21:43:08Z"
+            "checked": "2026-10-03T03:25:40Z"
           }
         }
       ],
@@ -117,7 +117,7 @@
           "swarm": {
             "seeders": 12,
             "peers": 2,
-            "checked": "2026-10-02T21:43:08Z"
+            "checked": "2026-10-03T03:25:40Z"
           }
         }
       ],
